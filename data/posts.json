@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "name": "Walk the dog",
+    "completed": false,
+    "createdById": 1,
+    "createdDate": "2016-01-01",
+    "modifiedById": 1,
+    "modifiedDate": "2016-01-01"
+  },
+  {
+    "id": 2,
+    "name": "Do the dishes",
+    "completed": true,
+    "createdById": 2,
+    "createdDate": "2016-01-01",
+    "modifiedById": 2,
+    "modifiedDate": "2016-01-01"
+  },
+  {
+    "id": 3,
+    "name": "GET CAUSES ERROR",
+    "completed": true,
+    "createdById": 3,
+    "createdDate": "2016-01-01",
+    "modifiedById": 3,
+    "modifiedDate": "2016-01-01"
+  },
+  {
+    "id": 4,
+    "name": "DELETE CAUSES ERROR",
+    "completed": false,
+    "createdById": 1,
+    "createdDate": "2016-01-01",
+    "modifiedById": 1,
+    "modifiedDate": "2016-01-01"
+  },
+  {
+    "id": 5,
+    "name": "PUT CAUSES ERROR",
+    "completed": true,
+    "createdById": 3,
+    "createdDate": "2016-01-01",
+    "modifiedById": 3,
+    "modifiedDate": "2016-01-01"
+  }
+]
