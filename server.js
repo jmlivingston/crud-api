@@ -5,7 +5,7 @@ const nodeWatch = require('node-watch')
 const path = require('path')
 const { logError, logRequest } = require('./helpers')
 
-const posts = JSON.parse(fs.readFileSync('./data/posts.json').toString())
+const todos = JSON.parse(fs.readFileSync('./data/todos.json').toString())
 
 const watch = process.argv.includes('watch')
 const port = 4000
@@ -29,7 +29,7 @@ const getData = () => {
   }, {})
 }
 
-const postData = getData()
+const todoData = getData()
 
 const getId = (url) => {
   const numberString = url?.split('/')?.[2]
@@ -40,11 +40,11 @@ const handleError = (request) => {
   let error = null
   const id = getId(request.url)
   if (!isNaN(id)) {
-    const post = posts.find((post) => post.id === id)
-    if (post?.name?.includes(`${request.method} CAUSES ERROR`)) {
+    const todo = todos.find((todo) => todo.id === id)
+    if (todo?.name?.includes(`${request.method} CAUSES ERROR`)) {
       error = {
         status: 500,
-        message: `Unable to ${request.method} this item!`,
+        message: `Unable to ${request.method} this todo!`,
       }
     }
   }
@@ -54,7 +54,7 @@ const handleError = (request) => {
 const startServer = () => {
   const server = jsonServer.create()
   const middlewares = jsonServer.defaults()
-  const router = jsonServer.router(postData)
+  const router = jsonServer.router(todoData)
   server.use(middlewares)
   server.use(jsonServer.bodyParser)
   server.use((request, response, next) => {
@@ -72,7 +72,7 @@ const startServer = () => {
           if (request.body.name.includes('CAUSES ERROR')) {
             error = {
               status: 500,
-              message: `Unable to ${request.method} this item!`,
+              message: `Unable to ${request.method} this todo!`,
             }
           }
           break
