@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "A simple watchable REST API based on JSON files.",
   "scripts": {
-    "start": "node ./server.js",
-    "start-watch": "node ./server.js watch"
+    "start": "env-cmd node ./server.js",
+    "start-watch": "env-cmd node ./server.js watch"
   },
   "keywords": [
     "node",
@@ -16,8 +16,12 @@
   "author": "John Livingston",
   "license": "UNLICENSED",
   "dependencies": {
+    "applicationinsights": "^2.3.6",
     "json-server": "^0.17.1",
     "killable": "^1.0.1",
     "node-watch": "^0.7.3"
+  },
+  "devDependencies": {
+    "env-cmd": "^10.1.0"
   }
 }

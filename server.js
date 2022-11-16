@@ -3,6 +3,7 @@ const jsonServer = require('json-server')
 const killable = require('killable')
 const nodeWatch = require('node-watch')
 const path = require('path')
+const { logError, logRequest } = require('./helpers')
 
 const posts = JSON.parse(fs.readFileSync('./data/posts.json').toString())
 
@@ -35,15 +36,15 @@ const getId = (url) => {
   return Number.parseInt(numberString)
 }
 
-const handleError = (req) => {
+const handleError = (request) => {
   let error = null
-  const id = getId(req.url)
+  const id = getId(request.url)
   if (!isNaN(id)) {
     const post = posts.find((post) => post.id === id)
-    if (post.name.includes(`${req.method} CAUSES ERROR`)) {
+    if (post?.name?.includes(`${request.method} CAUSES ERROR`)) {
       error = {
         status: 500,
-        message: `Unable to ${req.method} this item!`,
+        message: `Unable to ${request.method} this item!`,
       }
     }
   }
@@ -54,41 +55,45 @@ const startServer = () => {
   const server = jsonServer.create()
   const middlewares = jsonServer.defaults()
   const router = jsonServer.router(postData)
-  server.use([...middlewares])
+  server.use(middlewares)
   server.use(jsonServer.bodyParser)
-  server.use((req, res, next) => {
+  server.use((request, response, next) => {
+    let error = null
+    logRequest({ request, response })
     try {
-      switch (req.method) {
+      switch (request.method) {
         case 'DELETE':
-          error = handleError(req)
+          error = handleError(request)
           break
         case 'GET':
-          error = handleError(req)
+          error = handleError(request)
           break
         case 'POST':
-          if (req.body.name.includes('CAUSES ERROR')) {
+          if (request.body.name.includes('CAUSES ERROR')) {
             error = {
               status: 500,
-              message: `Unable to ${req.method} this item!`,
+              message: `Unable to ${request.method} this item!`,
             }
           }
           break
         case 'PUT':
-          error = handleError(req)
+          error = handleError(request)
           break
         default:
           break
       }
       if (error !== null) {
-        res.status(error.status).jsonp({
-          error: error.message,
-        })
+        throw error
       } else {
         next()
       }
     } catch (error) {
-      res.status(500).jsonp({
-        error,
+      logError({ error, request })
+      response.status(error.status || 500).jsonp({
+        error: {
+          ...error,
+          message: error.message,
+        },
       })
     }
   })
