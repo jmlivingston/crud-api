@@ -1,4 +1,3 @@
-const fs = require('fs')
 const jsonServer = require('json-server')
 const killable = require('killable')
 const nodeWatch = require('node-watch')
@@ -12,11 +11,14 @@ const startServer = () => {
   const server = jsonServer.create()
   const middlewares = jsonServer.defaults()
   const router = jsonServer.router(getData())
+  router.render = (request, response) => {
+    logRequest({ request, response: response.locals.data })
+    response.jsonp(response.locals.data)
+  }
   server.use(middlewares)
   server.use(jsonServer.bodyParser)
   server.use((request, response, next) => {
     let error = null
-    logRequest({ request, response })
     try {
       switch (request.method) {
         case 'DELETE':

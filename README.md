@@ -5,6 +5,8 @@
 1. `npm install`
 2. Create a JSON file in data and add a valid JSON array. The name of the file will be the endpoint name.
 
+> Note: If testing Microsoft Application Insights, be sure to create a .env with APP_INSIGHTS_INSTRUMENTATION_KEY. See [Microsoft Azure - Create an Application Insights resource](https://learn.microsoft.com/en-us/azure/azure-monitor/app/create-new-resource). Example: `APP_INSIGHTS_INSTRUMENTATION_KEY='d52e971e-198c-41b1-8617-e9f831847fdb'`
+
 ## Commands
 
 1. Start

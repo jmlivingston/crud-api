@@ -45,13 +45,12 @@ const handleError = (request) => {
 const logError = ({ error, request }) => {
   appInsightsClient.context.tags['ai.session.id'] =
     request.headers.appinsightssessionid
-  appInsightsClient.trackException({ exception: { error, request } })
+  appInsightsClient.trackException({ properties: { error, request } })
 }
 
 const logRequest = ({ request, response }) => {
   appInsightsClient.context.tags['ai.session.id'] =
     request.headers.appinsightssessionid
-  appInsightsClient.trackRequest({ request, response })
 }
 
 module.exports = { getData, getId, handleError, logError, logRequest }
