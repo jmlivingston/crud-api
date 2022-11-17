@@ -41,7 +41,7 @@ const handleError = (request) => {
   const id = getId(request.url)
   if (!isNaN(id)) {
     const todo = todos.find((todo) => todo.id === id)
-    if (todo?.name?.includes(`${request.method} CAUSES ERROR`)) {
+    if (todo?.name?.includes(`${request.method} ERROR`)) {
       error = {
         status: 500,
         message: `Unable to ${request.method} this todo!`,
@@ -69,7 +69,7 @@ const startServer = () => {
           error = handleError(request)
           break
         case 'POST':
-          if (request.body.name.includes('CAUSES ERROR')) {
+          if (request.body.name.includes('ERROR')) {
             error = {
               status: 500,
               message: `Unable to ${request.method} this todo!`,

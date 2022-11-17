@@ -19,7 +19,7 @@
   },
   {
     "id": 3,
-    "name": "GET CAUSES ERROR",
+    "name": "GET ERROR",
     "completed": true,
     "createdById": 3,
     "createdDate": "2016-01-01",
@@ -28,7 +28,7 @@
   },
   {
     "id": 4,
-    "name": "DELETE CAUSES ERROR",
+    "name": "DELETE ERROR",
     "completed": false,
     "createdById": 1,
     "createdDate": "2016-01-01",
@@ -37,7 +37,7 @@
   },
   {
     "id": 5,
-    "name": "PUT CAUSES ERROR",
+    "name": "PUT ERROR",
     "completed": true,
     "createdById": 3,
     "createdDate": "2016-01-01",
