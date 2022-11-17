@@ -43,12 +43,14 @@ const handleError = (request) => {
 }
 
 const logError = ({ error, request }) => {
-  // appInsightsClient.context.session.id = request.headers.sessionid // TODO
+  appInsightsClient.context.tags['ai.session.id'] =
+    request.headers.appinsightssessionid
   appInsightsClient.trackException({ exception: { error, request } })
 }
 
 const logRequest = ({ request, response }) => {
-  // appInsightsClient.context.session.id = request.headers.sessionid // TODO
+  appInsightsClient.context.tags['ai.session.id'] =
+    request.headers.appinsightssessionid
   appInsightsClient.trackRequest({ request, response })
 }
 
