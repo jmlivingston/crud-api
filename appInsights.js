@@ -12,22 +12,31 @@ if (!appInsights.defaultClient) {
     .setAutoCollectConsole(false)
     .setUseDiskRetryCaching(true)
     .setSendLiveMetrics(false)
-}
 
-appInsights.defaultClient.addTelemetryProcessor((envelope, context) => {
-  if (context?.['http.ServerResponse']?.locals?.data) {
-    envelope.tags['ai.session.id'] =
-      context?.['http.ServerRequest']?.headers?.appinsightssessionid ||
-      envelope.tags['ai.session.id']
-    envelope.data.baseData.properties = {
-      ...envelope.data.baseData.properties,
-      request: context?.['http.ServerRequest']?.body
-        ? { body: context?.['http.ServerRequest']?.body }
-        : undefined,
-      response: context['http.ServerResponse'].locals.data,
+  appInsights.defaultClient.addTelemetryProcessor((envelope, context) => {
+    if (context?.['http.ServerResponse']?.locals?.data) {
+      envelope.tags['ai.session.id'] =
+        context?.['http.ServerRequest']?.headers?.appinsightscontextsessionid ||
+        envelope.tags['ai.session.id']
+      envelope.data.baseData.properties = {
+        ...envelope.data.baseData.properties,
+        advisoryCode: 9999, // TODO
+        environment: 'DEV', // TODO
+        name: 'TODOS', // TODO
+        request: context?.['http.ServerRequest']?.body
+          ? {
+              body: context?.['http.ServerRequest']?.body,
+              method: context?.['http.ServerRequest']?.method,
+            }
+          : undefined,
+        requestId:
+          context?.['http.ServerRequest']?.headers
+            ?.appinsightspropertiesrequestid,
+        response: context['http.ServerResponse'].locals.data,
+      }
     }
-  }
-  return true
-})
+    return true
+  })
+}
 
 module.exports = { appInsightsClient: appInsights.defaultClient }
