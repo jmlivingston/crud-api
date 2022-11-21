@@ -1,7 +1,9 @@
 const jsonServer = require('json-server')
 const killable = require('killable')
 const nodeWatch = require('node-watch')
-const { getData, handleError, logError, logRequest } = require('./helpers')
+const { getData, handleError, logEvent } = require('./helpers')
+const { getAppInsightsQueryUrl } = require('./appInsights')
+const { APP_INSIGHTS } = require('./CONSTANTS')
 
 const watch = process.argv.includes('watch')
 const port = 4000
@@ -12,7 +14,7 @@ const startServer = () => {
   const middlewares = jsonServer.defaults()
   const router = jsonServer.router(getData())
   router.render = (request, response) => {
-    logRequest({ request, response: response.locals.data })
+    logEvent({ request, response: response.locals.data })
     response.jsonp(response.locals.data)
   }
   server.use(middlewares)
@@ -47,10 +49,18 @@ const startServer = () => {
         next()
       }
     } catch (error) {
-      logError({ error, request })
+      logEvent({ error, request })
       response.status(error.status || 500).jsonp({
         error: {
           ...error,
+          appInsights: {
+            message: 'Application Insights Log',
+            url: getAppInsightsQueryUrl({
+              name: APP_INSIGHTS.QUERIES.REQUEST_BY_SESSION_ID_REQUEST_ID,
+              requestId: request.headers.appinsightspropertiesrequestid,
+              sessionId: request.headers.appinsightscontextsessionid,
+            }),
+          },
           message: error.message,
         },
       })

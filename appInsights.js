@@ -1,42 +1,47 @@
 const appInsights = require('applicationinsights')
+const { APP_INSIGHTS } = require('./CONSTANTS')
 
 if (!appInsights.defaultClient) {
-  appInsights.setup(process.env.APP_INSIGHTS_INSTRUMENTATION_KEY)
+  appInsights.setup(APP_INSIGHTS.INSTRUMENTATION_KEY)
   appInsights
     .start()
-    .setAutoDependencyCorrelation(false)
+    .setAutoDependencyCorrelation(true)
     .setAutoCollectRequests(true)
     .setAutoCollectPerformance(true)
-    .setAutoCollectExceptions(false)
-    .setAutoCollectDependencies(false)
-    .setAutoCollectConsole(false)
+    .setAutoCollectExceptions(true)
+    .setAutoCollectDependencies(true)
+    .setAutoCollectConsole(true)
     .setUseDiskRetryCaching(true)
-    .setSendLiveMetrics(false)
-
-  appInsights.defaultClient.addTelemetryProcessor((envelope, context) => {
-    if (context?.['http.ServerResponse']?.locals?.data) {
-      envelope.tags['ai.session.id'] =
-        context?.['http.ServerRequest']?.headers?.appinsightscontextsessionid ||
-        envelope.tags['ai.session.id']
-      envelope.data.baseData.properties = {
-        ...envelope.data.baseData.properties,
-        advisoryCode: 9999, // TODO
-        environment: 'DEV', // TODO
-        name: 'TODOS', // TODO
-        request: context?.['http.ServerRequest']?.body
-          ? {
-              body: context?.['http.ServerRequest']?.body,
-              method: context?.['http.ServerRequest']?.method,
-            }
-          : undefined,
-        requestId:
-          context?.['http.ServerRequest']?.headers
-            ?.appinsightspropertiesrequestid,
-        response: context['http.ServerResponse'].locals.data,
-      }
-    }
-    return true
-  })
+    .setSendLiveMetrics(true)
 }
 
-module.exports = { appInsightsClient: appInsights.defaultClient }
+const getAppInsightsQueryUrl = ({ name, requestId, sessionId }) => {
+  const getQueryByName = ({ name, requestId, sessionId }) => {
+    let query
+    switch (name) {
+      case APP_INSIGHTS.QUERIES.REQUEST_BY_SESSION_ID_REQUEST_ID:
+        query = `customEvents | where session_Id == "${sessionId}" and customDimensions contains "${requestId}"`
+        break
+    }
+    return query
+  }
+
+  const query = getQueryByName({ name, requestId, sessionId })
+  const url = `https://portal.azure.com/#@${
+    APP_INSIGHTS.TENANT_ID
+  }/blade/Microsoft_Azure_Monitoring_Logs/LogsBlade/resourceId/%2Fsubscriptions%2F${
+    APP_INSIGHTS.SUBSCRIPTION_ID
+  }%2FresourceGroups%2F${
+    APP_INSIGHTS.RESOURCE_GROUP
+  }%2Fproviders%2Fmicrosoft.insights%2Fcomponents%2F${
+    APP_INSIGHTS.INSTANCE_NAME
+  }/source/LogsBlade.AnalyticsShareLinkToQuery/query/${encodeURI(
+    query
+  )}/timespan/TIMESPAN`
+  return url
+}
+
+module.exports = {
+  appInsightsClient: appInsights.defaultClient,
+  getAppInsightsQueryUrl,
+}
