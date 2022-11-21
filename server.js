@@ -54,7 +54,7 @@ const startServer = () => {
         error: {
           ...error,
           appInsights: {
-            message: 'Application Insights Log',
+            message: 'Azure API Log',
             url: getAppInsightsQueryUrl({
               name: APP_INSIGHTS.QUERIES.REQUEST_BY_SESSION_ID_REQUEST_ID,
               requestId: request.headers.appinsightspropertiesrequestid,

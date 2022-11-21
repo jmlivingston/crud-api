@@ -20,7 +20,7 @@ const getAppInsightsQueryUrl = ({ name, requestId, sessionId }) => {
     let query
     switch (name) {
       case APP_INSIGHTS.QUERIES.REQUEST_BY_SESSION_ID_REQUEST_ID:
-        query = `customEvents | where session_Id == "${sessionId}" and customDimensions contains "${requestId}"`
+        query = `customEvents | where session_Id == "${sessionId}" and name == "${APP_INSIGHTS.LOG_NAME}" and customDimensions["requestId"] == "${requestId}"`
         break
     }
     return query
