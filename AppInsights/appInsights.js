@@ -1,5 +1,5 @@
 const appInsights = require('applicationinsights')
-const { APP_INSIGHTS } = require('./CONSTANTS')
+const { APP_INSIGHTS } = require('../CONSTANTS')
 
 if (!appInsights.defaultClient) {
   appInsights.setup(APP_INSIGHTS.INSTRUMENTATION_KEY)

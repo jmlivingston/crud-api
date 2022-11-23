@@ -1,7 +1,5 @@
-const { appInsightsClient } = require('./appInsights')
 const path = require('path')
 const fs = require('fs')
-const { APP_INSIGHTS } = require('./CONSTANTS')
 
 const todos = JSON.parse(fs.readFileSync('./data/todos.json').toString())
 
@@ -43,27 +41,4 @@ const handleError = (request) => {
   return error
 }
 
-const logEvent = ({ error, request, response }) => {
-  console.log({
-    sessionId: request.headers.appinsightscontextsessionid,
-    requestId: request.headers.appinsightspropertiesrequestid,
-  })
-  appInsightsClient.context.tags['ai.session.id'] =
-    request.headers.appinsightscontextsessionid
-  appInsightsClient.trackEvent({
-    name: APP_INSIGHTS.LOG_NAME,
-    properties: {
-      advisoryCode: 9999, // TODO
-      environment: 'DEV', // TODO
-      error,
-      request: {
-        resource: request.url,
-        options: { body: request.body, headers: request.headers },
-      },
-      requestId: request.headers.appinsightspropertiesrequestid,
-      response,
-    },
-  })
-}
-
-module.exports = { getData, getId, handleError, logEvent }
+module.exports = { getData, getId, handleError }

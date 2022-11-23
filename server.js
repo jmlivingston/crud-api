@@ -1,25 +1,63 @@
 const jsonServer = require('json-server')
 const killable = require('killable')
 const nodeWatch = require('node-watch')
-const { getData, handleError, logEvent } = require('./helpers')
-const { getAppInsightsQueryUrl } = require('./appInsights')
-const { APP_INSIGHTS } = require('./CONSTANTS')
+const { getData, handleError } = require('./helpers')
+const { APP_INSIGHTS, ENVIRONMENT } = require('./CONSTANTS')
+const {
+  getLogUrl,
+  handleTelemetry,
+  HEADERS,
+} = require('./AppInsights/appInsightsHelper')
+const { appInsightsClient } = require('./AppInsights/appInsights')
 
 const watch = process.argv.includes('watch')
 const port = 4000
 let httpServer = null
+
+const wrapHandleTelemetry = ({ request, response }) => {
+  const url =
+    request.protocol + '://' + request.get('host') + request.originalUrl
+  handleTelemetry({
+    appInsights: appInsightsClient,
+    appInsightsConfig: APP_INSIGHTS,
+    environment: ENVIRONMENT,
+    logToConsole: false,
+    options: { method: request.method },
+    requestId: request.headers.appinsightspropertiesrequestid,
+    resource: url,
+    response: {
+      json: () => Promise.resolve(response?.locals?.data),
+      ok: response.ok,
+      status: response.status,
+      statusText: response.statusText,
+      url,
+    },
+    sessionId: request.headers.appinsightscontextsessionid,
+    tier: 'API',
+  })
+}
 
 const startServer = () => {
   const server = jsonServer.create()
   const middlewares = jsonServer.defaults()
   const router = jsonServer.router(getData())
   router.render = (request, response) => {
-    logEvent({ request, response: response.locals.data })
-    response.jsonp(response.locals.data)
+    wrapHandleTelemetry({
+      request,
+      response: { ...response, ok: true, status: 200, statusText: 'OK' },
+    })
+    response.send(response.locals.data)
   }
   server.use(middlewares)
   server.use(jsonServer.bodyParser)
   server.use((request, response, next) => {
+    const logUrl = getLogUrl({
+      appInsightsConfig: APP_INSIGHTS,
+      requestId: request.headers.appinsightspropertiesrequestid,
+      sessionId: request.headers.appinsightscontextsessionid,
+    })
+    response.header('Access-Control-Expose-Headers', HEADERS.LOG_URL)
+    response.header(HEADERS.LOG_URL, logUrl)
     let error = null
     try {
       switch (request.method) {
@@ -49,17 +87,21 @@ const startServer = () => {
         next()
       }
     } catch (error) {
-      logEvent({ error, request })
+      wrapHandleTelemetry({
+        response: {
+          ...error,
+          ok: false,
+          status: error.status || 500,
+          statusText: 'Internal Server Error',
+        },
+        request,
+      })
       response.status(error.status || 500).jsonp({
         error: {
           ...error,
           appInsights: {
             message: 'Azure API Log',
-            url: getAppInsightsQueryUrl({
-              name: APP_INSIGHTS.QUERIES.REQUEST_BY_SESSION_ID_REQUEST_ID,
-              requestId: request.headers.appinsightspropertiesrequestid,
-              sessionId: request.headers.appinsightscontextsessionid,
-            }),
+            url: logUrl,
           },
           message: error.message,
         },
