@@ -3,7 +3,7 @@ const HEADERS = Object.freeze({
   LOG_URL: 'LOG-URL',
 })
 
-// TODO: Can we expose appInsightsConfig variables? Should we move to API?
+// TODO: Except for INSTRUMENTATION_KEY which we need, can we expose appInsightsConfig variables? Should we move to API?
 const getLogUrl = ({
   appInsightsConfig, // Constant with INSTANCE_NAME, INSTRUMENTATION_KEY, NAME, RESOURCE_GROUP, SUBSCRIPTION_ID, and TENANT_ID
   requestId, // unique id for this request
@@ -71,12 +71,16 @@ const handleTelemetry = ({
   sessionId, // unique id for this session
   tier, // CLIENT || API
 }) => {
-  appInsights.context.session.id = sessionId
   const resourcePath = new URL(resource).pathname
 
   const logs = []
   if (tier.toUpperCase() === 'CLIENT') {
-    logs.push({ name: 'API', url: response?.headers?.get(HEADERS.LOG_URL) })
+    logs.push({
+      name: 'API',
+      url: response?.headers?.get
+        ? response?.headers?.get(HEADERS.LOG_URL)
+        : response?.headers?.[HEADERS.LOG_URL],
+    })
   }
   logs.push({
     name: 'Client',
@@ -173,6 +177,7 @@ const trackEvent = async ({
   }
   if (appInsights.defaultClient) {
     // node version
+    appInsights.defaultClient.context.session.id = sessionId
     appInsights.defaultClient.context.tags['ai.session.id'] = sessionId
     appInsights.defaultClient.trackEvent({
       name,
@@ -182,6 +187,7 @@ const trackEvent = async ({
     })
   } else {
     // web version
+    appInsights.context.session.id = sessionId
     appInsights.trackEvent(
       {
         name,
@@ -193,4 +199,4 @@ const trackEvent = async ({
   }
 }
 
-module.exports = { getLogUrl, handleTelemetry, HEADERS, setSessionId }
+export { getLogUrl, handleTelemetry, HEADERS, setSessionId }
