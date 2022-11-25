@@ -128,7 +128,11 @@ const handleTelemetry = ({
 }
 
 const setSessionId = ({ appInsights, sessionId }) => {
-  appInsights.context.session.id = sessionId
+  if (appInsights.defaultClient) {
+    appInsights.defaultClient.context.session.id = sessionId
+  } else {
+    appInsights.context.session.id = sessionId
+  }
 }
 
 const trackEvent = async ({
