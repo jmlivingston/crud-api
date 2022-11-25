@@ -8,7 +8,7 @@ const {
   handleTelemetry,
   HEADERS,
 } = require('./AppInsights/appInsightsHelper')
-const { appInsightsClient } = require('./AppInsights/appInsights')
+const appInsights = require('./AppInsights/appInsights')
 
 const watch = process.argv.includes('watch')
 const port = 4000
@@ -18,7 +18,7 @@ const wrapHandleTelemetry = ({ request, response }) => {
   const url =
     request.protocol + '://' + request.get('host') + request.originalUrl
   handleTelemetry({
-    appInsights: appInsightsClient,
+    appInsights,
     appInsightsConfig: APP_INSIGHTS,
     environment: ENVIRONMENT,
     logToConsole: false,

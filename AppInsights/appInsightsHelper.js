@@ -9,7 +9,9 @@ const getLogUrl = ({
 }) => {
   const { INSTANCE_NAME, NAME, RESOURCE_GROUP, SUBSCRIPTION_ID, TENANT_ID } =
     appInsightsConfig
+  // eslint-disable-next-line max-len
   const query = `customEvents | where session_Id == "${sessionId}" and name == "${NAME}" and customDimensions["requestId"] == "${requestId}"`
+  // eslint-disable-next-line max-len
   const url = `https://portal.azure.com/#@${TENANT_ID}/blade/Microsoft_Azure_Monitoring_Logs/LogsBlade/resourceId/%2Fsubscriptions%2F${SUBSCRIPTION_ID}%2FresourceGroups%2F${RESOURCE_GROUP}%2Fproviders%2Fmicrosoft.insights%2Fcomponents%2F${INSTANCE_NAME}/source/LogsBlade.AnalyticsShareLinkToQuery/query/${encodeURI(
     query
   )}/timespan/TIMESPAN`
@@ -24,6 +26,7 @@ const getIssueMarkdown = ({
   resourcePath,
   response,
 }) => {
+  // eslint-disable-next-line max-len
   const summary = `${name} - (${request.options.method}) ${resourcePath} - Error: ${response.status} (${response.statusText})`
 
   const description = `## Environment
@@ -43,7 +46,7 @@ ${JSON.stringify(response.data, null, 2)}
 \`\`\`
 
 ## Log URL
-${logs?.map(({ name, url }) => `- [${name}](${url})`).join('\n')}
+${logs?.map((log) => `- [${log.name}](${log.url})`).join('\n')}
 `
   return { description, summary }
 }
@@ -55,7 +58,7 @@ const getCreateIssueUrl = ({ description, summary }) => {
 }
 
 const handleTelemetry = ({
-  appInsights, // AppInsights Client Instance
+  appInsights,
   appInsightsConfig, // Constant with INSTANCE_NAME, INSTRUMENTATION_KEY, NAME, RESOURCE_GROUP, SUBSCRIPTION_ID, and TENANT_ID
   environment, // DEV, QA, PROD, etc
   logToConsole, // true || false
@@ -68,19 +71,18 @@ const handleTelemetry = ({
 }) => {
   const resourcePath = new URL(resource).pathname
 
-  let logs = []
-  if (tier === 'CLIENT') {
+  const logs = []
+  if (tier.toUpperCase() === 'CLIENT') {
     logs.push({ name: 'API', url: response?.headers?.get(HEADERS.LOG_URL) })
-  } else {
-    logs.push({
-      name: 'Client',
-      url: getLogUrl({
-        appInsightsConfig,
-        requestId,
-        sessionId,
-      }),
-    })
   }
+  logs.push({
+    name: 'Client',
+    url: getLogUrl({
+      appInsightsConfig,
+      requestId,
+      sessionId,
+    }),
+  })
 
   const { description, summary } = getIssueMarkdown({
     environment,
@@ -158,7 +160,7 @@ const trackEvent = async ({
     response: responseFormatted,
     tier,
   }
-  if (tier === 'CLIENT') {
+  if (tier.toUpperCase() === 'CLIENT') {
     // web version
     appInsights.trackEvent(
       {
