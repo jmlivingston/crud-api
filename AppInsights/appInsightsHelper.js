@@ -71,6 +71,7 @@ const handleTelemetry = ({
   sessionId, // unique id for this session
   tier, // CLIENT || API
 }) => {
+  appInsights.context.session.id = sessionId
   const resourcePath = new URL(resource).pathname
 
   const logs = []
