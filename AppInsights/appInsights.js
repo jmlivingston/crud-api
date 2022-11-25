@@ -1,8 +1,7 @@
 const appInsights = require('applicationinsights')
-const { APP_INSIGHTS } = require('../CONSTANTS')
 
-if (!appInsights.defaultClient) {
-  appInsights.setup(APP_INSIGHTS.INSTRUMENTATION_KEY)
+const init = ({ instrumentationKey }) => {
+  appInsights.setup(instrumentationKey)
   appInsights
     .start()
     .setAutoDependencyCorrelation(true)
@@ -15,4 +14,4 @@ if (!appInsights.defaultClient) {
     .setSendLiveMetrics(true)
 }
 
-module.exports = appInsights
+module.exports = { appInsights, init }

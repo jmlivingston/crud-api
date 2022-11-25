@@ -8,8 +8,9 @@ const {
   handleTelemetry,
   HEADERS,
 } = require('./AppInsights/appInsightsHelper')
-const appInsights = require('./AppInsights/appInsights')
+const { appInsights, init } = require('./AppInsights/appInsights')
 
+init({ instrumentationKey: APP_INSIGHTS.INSTRUMENTATION_KEY })
 const watch = process.argv.includes('watch')
 const port = 4000
 let httpServer = null
