@@ -85,12 +85,13 @@ const handleTelemetry = ({
   const resourcePath = new URL(resource).pathname
 
   const logs = []
-  if (tier.toUpperCase() === 'CLIENT') {
+  const apiLogUrl = response?.headers?.get
+    ? response?.headers?.get(HEADERS.LOG_URL)
+    : response?.headers?.[HEADERS.LOG_URL]
+  if (tier.toUpperCase() === 'CLIENT' && apiLogUrl) {
     logs.push({
       name: 'API',
-      url: response?.headers?.get
-        ? response?.headers?.get(HEADERS.LOG_URL)
-        : response?.headers?.[HEADERS.LOG_URL],
+      url: apiLogUrl,
     })
   }
   logs.push({
