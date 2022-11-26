@@ -61,7 +61,7 @@ const getCreateIssueUrl = ({ description, summary }) => {
 
 const getSessionInfo = ({ key }) => {
   const infoString = sessionStorage.getItem(key)
-  let info = infoString ? JSON.parse(infoString) : {}
+  const info = infoString ? JSON.parse(infoString) : {}
   if (info?.session?.id !== undefined) {
     throw new Error(
       'App Insights Session must be set using setSessionId before getting.'
