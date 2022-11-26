@@ -3,7 +3,7 @@ const HEADERS = Object.freeze({
   LOG_URL: 'LOG-URL',
 })
 
-// TODO: Except for INSTRUMENTATION_KEY which we need, can we expose appInsightsConfig variables? Should we move to API?
+// TODO: JML Except for INSTRUMENTATION_KEY which we need, can we expose appInsightsConfig variables? Should we move to API?
 const getLogUrl = ({
   appInsightsConfig, // Constant with INSTANCE_NAME, INSTRUMENTATION_KEY, NAME, RESOURCE_GROUP, SUBSCRIPTION_ID, and TENANT_ID
   requestId, // unique id for this request
@@ -62,7 +62,7 @@ const getCreateIssueUrl = ({ description, summary }) => {
 const getSessionInfo = ({ key }) => {
   const infoString = sessionStorage.getItem(key)
   const info = infoString ? JSON.parse(infoString) : {}
-  if (info?.session?.id !== undefined) {
+  if (info?.session?.id === undefined) {
     throw new Error(
       'App Insights Session must be set using setSessionId before getting.'
     )
@@ -140,6 +140,10 @@ const handleTelemetry = ({
     console.log(`Summary: ${summary}\n\nDescription:\n${description}`)
     console.groupEnd()
   }
+}
+
+const removeSessionInfo = ({ key }) => {
+  sessionStorage.removeItem(key)
 }
 
 const setSessionId = ({ appInsights, sessionId }) => {
@@ -221,6 +225,7 @@ module.exports = {
   getSessionInfo,
   handleTelemetry,
   HEADERS,
+  removeSessionInfo,
   setSessionId,
   setSessionInfo,
 }
