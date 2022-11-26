@@ -216,7 +216,7 @@ const trackEvent = async ({
   }
 }
 
-export {
+module.exports = {
   getLogUrl,
   getSessionInfo,
   handleTelemetry,
