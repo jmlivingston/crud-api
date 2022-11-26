@@ -59,6 +59,17 @@ const getCreateIssueUrl = ({ description, summary }) => {
   )}&description=${encodeURIComponent(description)}`
 }
 
+const getSessionInfo = ({ key }) => {
+  const infoString = sessionStorage.getItem(key)
+  let info = infoString ? JSON.parse(infoString) : {}
+  if (info?.session?.id !== undefined) {
+    throw new Error(
+      'App Insights Session must be set using setSessionId before getting.'
+    )
+  }
+  return info
+}
+
 const handleTelemetry = ({
   appInsights,
   appInsightsConfig, // Constant with INSTANCE_NAME, INSTRUMENTATION_KEY, NAME, RESOURCE_GROUP, SUBSCRIPTION_ID, and TENANT_ID
@@ -139,6 +150,12 @@ const setSessionId = ({ appInsights, sessionId }) => {
   }
 }
 
+const setSessionInfo = ({ key, sessionId }) => {
+  const info = { session: { id: sessionId } }
+  sessionStorage.setItem(key, JSON.stringify(info))
+  return info
+}
+
 const trackEvent = async ({
   appInsights,
   createIssueUrl,
@@ -199,4 +216,11 @@ const trackEvent = async ({
   }
 }
 
-export { getLogUrl, handleTelemetry, HEADERS, setSessionId }
+export {
+  getLogUrl,
+  getSessionInfo,
+  handleTelemetry,
+  HEADERS,
+  setSessionId,
+  setSessionInfo,
+}
